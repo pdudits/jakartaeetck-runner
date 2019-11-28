@@ -293,7 +293,7 @@
      -->
      <target name="add.classpathsuffix" depends="configPlatform" >
          <antcall target="set" >
-          <param name="set.value" value=" ${server.instance}-config.java-config.classpath_suffix=${javaee.home.ri.classpathsuffix}"/>
+          <param name="set.value" value=" ${server.instance}-config.java-config.system-classpath=${javaee.home.ri.classpathsuffix}"/>
          </antcall>
      </target>
 

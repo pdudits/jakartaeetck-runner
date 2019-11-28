@@ -349,7 +349,8 @@
     -->
     <target name="add.classpathsuffix" depends="configPlatform" >
          <antcall target="set" >
-          <param name="set.value" value=" ${server.instance}-config.java-config.classpath_suffix=${s1as.classpathsuffix}"/>
+          <!-- actually we need to set system classpath for ext jar discovery on 11, the name should be refactored -->
+          <param name="set.value" value=" ${server.instance}-config.java-config.system-classpath=${s1as.classpathsuffix}"/>
          </antcall>
     </target>
 

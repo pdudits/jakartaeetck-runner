@@ -288,13 +288,138 @@
     </target>
 
     <target name="delete.cts.ext.jars">
-       <delete file="${extension.dir}/cts.jar" quiet="true"/>
-       <delete file="${extension.dir}/tsharness.jar" quiet="true"/>
+       <delete file="${javaee.home}/modules/cts.jar" quiet="true"/>
+       <delete file="${javaee.home}/modules/tsharness.jar" quiet="true"/>
     </target>
 
     <target name="copy.cts.ext.jars">
+        <!-- For JDK8, and especially appclient, these need to be on ext dir path. I'd prefer not to put them on server's ext dir path, but that would be too complicated now -->
         <copy file="${ts.home}/lib/cts.jar" todir="${extension.dir}"/>
         <copy file="${ts.home}/lib/tsharness.jar" todir="${extension.dir}"/>
+
+        <!-- On jdk 11, ext dirs actually have have no effect. We put these on system classpath,
+             and OSGified versions of them into glassfish modules. -->
+        <copy file="${ts.home}/lib/cts.jar" todir="${javaee.home}/modules/"/>
+        <copy file="${ts.home}/lib/tsharness.jar" todir="${javaee.home}/modules/"/>
+        <!-- add OSGi attributes. We can see those in project osgi-bundler, binding maven into this process would be too cumbersome -->
+        <jar update="true" file="${javaee.home}/modules/cts.jar">
+            <manifest>
+                <attribute name="Bundle-ManifestVersion" value="2"/>
+                <attribute name="Bundle-Name" value="cts"/>
+                <attribute name="Bundle-SymbolicName" value="fish.payara.internal.tck.cts"/>
+                <attribute name="Bundle-Version" value="1.0.0.SNAPSHOT"/>
+                <attribute name="Export-Package" value="com.sun.ts.lib.deliverable.cts;uses:=&quot;com.sun.javatest,com.sun.ts.lib.deliverable,com.sun.ts.lib.porting&quot;;version=&quot;1.0.0&quot;,
+                    com.sun.ts.lib.deliverable.cts.deploy;uses:=&quot;com.sun.ts.lib.deliverable,com.sun.ts.lib.porting,javax.enterprise.deploy.shared,javax.enterprise.deploy.spi,javax.enterprise.deploy.spi.exceptions,javax.enterprise.deploy.spi.status&quot;;version=&quot;1.0.0&quot;,
+                    com.sun.ts.lib.deliverable.cts.resource;uses:=&quot;javax.naming,javax.naming.spi&quot;;version=&quot;1.0.0&quot;,
+                    com.sun.ts.lib.implementation.sun.common;uses:=&quot;com.sun.ts.lib.porting&quot;;version=&quot;1.0.0&quot;,
+                    com.sun.ts.lib.implementation.sun.javaee;uses:=&quot;com.sun.ts.lib.deliverable,com.sun.ts.lib.porting,javax.enterprise.deploy.spi,javax.enterprise.deploy.spi.status,javax.net.ssl,javax.security.auth.callback,org.xml.sax&quot;;version=&quot;1.0.0&quot;,
+                    com.sun.ts.lib.implementation.sun.javaee.glassfish;uses:=&quot;com.sun.ts.lib.deliverable,com.sun.ts.lib.porting&quot;;version=&quot;1.0.0&quot;,
+                    com.sun.ts.lib.implementation.sun.javaee.runtime;uses:=&quot;com.sun.ts.lib.porting,org.xml.sax&quot;;version=&quot;1.0.0&quot;,
+                    com.sun.ts.lib.implementation.sun.javaee.runtime.app;uses:=&quot;javax.xml.bind.annotation,javax.xml.bind.annotation.adapters&quot;;version=&quot;1.0.0&quot;,
+                    com.sun.ts.lib.implementation.sun.javaee.runtime.appclient;uses:=&quot;javax.xml.bind.annotation,javax.xml.bind.annotation.adapters&quot;;version=&quot;1.0.0&quot;,
+                    com.sun.ts.lib.implementation.sun.javaee.runtime.ejb;uses:=&quot;javax.xml.bind.annotation,javax.xml.bind.annotation.adapters&quot;;version=&quot;1.0.0&quot;,
+                    com.sun.ts.lib.implementation.sun.javaee.runtime.web;uses:=&quot;javax.xml.bind.annotation,javax.xml.bind.annotation.adapters&quot;;version=&quot;1.0.0&quot;,
+                    com.sun.ts.lib.porting;uses:=&quot;javax.enterprise.deploy.spi,javax.enterprise.deploy.spi.status&quot;;version=&quot;1.0.0&quot;,
+                    com.sun.ts.lib.tests.security.permissions;version=&quot;1.0.0&quot;"/>
+                <attribute name="Import-Package" value="com.sun.enterprise.security.auth.login;resolution:=optional,
+                    com.sun.javatest;resolution:=optional,
+                    com.sun.ts.lib.deliverable;resolution:=optional,
+                    com.sun.ts.lib.harness;resolution:=optional,
+                    com.sun.ts.lib.implementation.sun.javaee;resolution:=optional,
+                    com.sun.ts.lib.implementation.sun.javaee.runtime;resolution:=optional,
+                    com.sun.ts.lib.implementation.sun.javaee.runtime.app;resolution:=optional,
+                    com.sun.ts.lib.implementation.sun.javaee.runtime.appclient;resolution:=optional,
+                    com.sun.ts.lib.implementation.sun.javaee.runtime.ejb;resolution:=optional,
+                    com.sun.ts.lib.implementation.sun.javaee.runtime.web;resolution:=optional,
+                    com.sun.ts.lib.porting;resolution:=optional,
+                    com.sun.ts.lib.util;resolution:=optional,
+                    org.apache.tools.ant;resolution:=optional,
+                    org.jdom;resolution:=optional,
+                    org.jdom.input;resolution:=optional,
+                    org.jdom.output;resolution:=optional,
+                    javax.enterprise.deploy.shared,
+                    javax.enterprise.deploy.shared.factories,
+                    javax.enterprise.deploy.spi,
+                    javax.enterprise.deploy.spi.exceptions,
+                    javax.enterprise.deploy.spi.factories,
+                    javax.enterprise.deploy.spi.status,
+                    javax.naming,
+                    javax.naming.spi,
+                    javax.net.ssl,
+                    javax.security.auth,
+                    javax.security.auth.callback,
+                    javax.xml.bind,
+                    javax.xml.bind.annotation,
+                    javax.xml.bind.annotation.adapters,
+                    javax.xml.parsers,
+                    javax.xml.transform,
+                    javax.xml.transform.sax,
+                    org.glassfish.deployment.client,
+                    org.xml.sax"/>
+            </manifest>
+        </jar>
+
+        <jar update="true" file="${javaee.home}/modules/tsharness.jar">
+            <manifest>
+                <attribute name="Bundle-ManifestVersion" value="2"/>
+                <attribute name="Bundle-Name" value="tsharness"/>
+                <attribute name="Bundle-SymbolicName" value="fish.payara.internal.tck.tsharness"/>
+                <attribute name="Bundle-Version" value="1.0.0.SNAPSHOT"/>
+                <attribute name="Export-Package" value="
+                    com.sun.javatest;version=&quot;1.0.0&quot;,
+                    com.sun.ts.lib.deliverable;uses:=&quot;com.sun.javatest,com.sun.ts.lib.porting&quot;;version=&quot;1.0.0&quot;,
+                    com.sun.ts.lib.harness;uses:=&quot;com.sun.javatest,com.sun.javatest.finder,com.sun.javatest.lib,com.sun.javatest.util,com.sun.ts.lib.deliverable,com.sun.ts.lib.porting&quot;;version=&quot;1.0.0&quot;,
+                    com.sun.ts.lib.javatest;uses:=&quot;com.sun.interview,com.sun.javatest,com.sun.javatest.interview&quot;;version=&quot;1.0.0&quot;,
+                    com.sun.ts.lib.porting;version=&quot;1.0.0&quot;,
+                    com.sun.ts.lib.util;uses:=&quot;javax.sql,org.xml.sax&quot;;version=&quot;1.0.0&quot;,
+                    com.sun.ts.lib.util.sec.misc;uses:=&quot;com.sun.ts.lib.util.sec.nio.ch,com.sun.ts.lib.util.sec.reflect,com.sun.ts.lib.util.sec.reflect.annotation&quot;;version=&quot;1.0.0&quot;,
+                    com.sun.ts.lib.util.sec.net.www;version=&quot;1.0.0&quot;,
+                    com.sun.ts.lib.util.sec.nio;version=&quot;1.0.0&quot;,
+                    com.sun.ts.lib.util.sec.nio.ch;version=&quot;1.0.0&quot;,
+                    com.sun.ts.lib.util.sec.nio.cs;version=&quot;1.0.0&quot;,
+                    com.sun.ts.lib.util.sec.reflect;version=&quot;1.0.0&quot;,
+                    com.sun.ts.lib.util.sec.reflect.annotation;version=&quot;1.0.0&quot;,
+                    com.sun.ts.lib.util.sec.security.action;version=&quot;1.0.0&quot;,
+                    com.sun.ts.lib.util.sec.security.auth;uses:=&quot;javax.security.auth&quot;;version=&quot;1.0.0&quot;,
+                    com.sun.ts.lib.util.sec.security.provider;version=&quot;1.0.0&quot;,
+                    com.sun.ts.lib.util.sec.security.util;uses:=&quot;javax.security.auth&quot;;version=&quot;1.0.0&quot;"/>
+                <attribute name="Extension-Name" value="tsharness"/>
+                <attribute name="Implementation-Vendor" value="Sun Microsystems, Inc"/>
+                <attribute name="Implementation-Vendor-Id" value="com.sun"/>
+                <attribute name="Implementation-Version" value="1.4"/>
+                <attribute name="Import-Package" value="
+                    com.sun.interview;resolution:=optional,
+                    com.sun.javatest;resolution:=optional,
+                    com.sun.javatest.finder;resolution:=optional,
+                    com.sun.javatest.interview;resolution:=optional,
+                    com.sun.javatest.lib;resolution:=optional,
+                    com.sun.javatest.util;resolution:=optional,
+                    com.sun.ts.lib.deliverable;resolution:=optional,
+                    com.sun.ts.lib.harness;resolution:=optional,
+                    com.sun.ts.lib.javatest;resolution:=optional,
+                    com.sun.ts.lib.porting;resolution:=optional,
+                    com.sun.ts.lib.util;resolution:=optional,
+                    com.sun.ts.lib.util.sec.misc;resolution:=optional,
+                    com.sun.ts.lib.util.sec.net.www;resolution:=optional,
+                    com.sun.ts.lib.util.sec.nio;resolution:=optional,
+                    com.sun.ts.lib.util.sec.nio.ch;resolution:=optional,
+                    com.sun.ts.lib.util.sec.nio.cs;resolution:=optional,
+                    com.sun.ts.lib.util.sec.reflect;resolution:=optional,
+                    com.sun.ts.lib.util.sec.reflect.annotation;resolution:=optional,
+                    com.sun.ts.lib.util.sec.security.action;resolution:=optional,
+                    com.sun.ts.lib.util.sec.security.auth;resolution:=optional,
+                    com.sun.ts.lib.util.sec.security.util;resolution:=optional,
+                    org.apache.tools.ant;resolution:=optional,
+                    org.apache.tools.ant.taskdefs.condition;resolution:=optional,
+                    javax.naming,
+                    javax.rmi,
+                    javax.security.auth,
+                    javax.security.auth.x500,
+                    javax.sql,
+                    javax.xml.parsers,
+                    org.xml.sax"/>
+            </manifest>
+        </jar>
     </target>
 
     <!--
