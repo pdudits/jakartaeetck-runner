@@ -96,7 +96,13 @@ public class Main {
             threshold = Double.parseDouble(args[1]);
             serverLogs = args[2];
         }
-        String path = args[0];
+        // Powershell almost handles arguments with spaces, but leaves final quote
+        String path = args[0].replace("\"","");
+        if (Files.isDirectory(Paths.get(path))) {
+            ReportDirectoryScanner scanner = ReportDirectoryScanner.inPath(path);
+            path = scanner.getReport().toAbsolutePath().toString();
+            serverLogs = scanner.getLogDir().toAbsolutePath().toString();
+        }
         Main main = new Main(path, threshold, serverLogs);
         main.process();
         main.writeLogs();

@@ -87,6 +87,10 @@ public class JUnitReportParser  {
 
                 @Override
                 protected void finished(Element element) {
+                }
+
+                @Override
+                protected void handlerFinished(Element element) {
                     report.cases.add(currentTestcase);
                 }
             };

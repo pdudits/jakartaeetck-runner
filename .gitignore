@@ -18,5 +18,7 @@ cdi/*.log
 /stage_*
 *.tar.gz
 *.log
+summarizer/bundle/
+summarizer/**/*.tar.gz
 bv/*.zip
 di/*.zip

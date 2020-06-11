@@ -87,6 +87,7 @@ public class XmlHandler extends DefaultHandler2 {
         currentHandler.finished(currentElement);
         ElementHandler oldHandler = parentHandlers.remove(currentElement);
         if (oldHandler != null) {
+            currentHandler.handlerFinished(currentElement);
             currentHandler = oldHandler;
         }
     }
@@ -105,6 +106,9 @@ public class XmlHandler extends DefaultHandler2 {
         protected abstract ElementHandler started(Element element);
 
         protected abstract void finished(Element element);
+
+        protected void handlerFinished(Element rootElement) {
+        }
 
     }
 
